@@ -34,7 +34,7 @@ class Square:
         if(self.option[value] == False) :
             self.option[value] = True
             self.free += 1
-            if(value < self.minOption) : self.minOption = copy.copy(value)
+            if(value < self.minOption) : self.minOption = value
 
 class Backer:
     def __init__(self, square):
@@ -51,8 +51,8 @@ class Heap:
 
         for i in range (1, 81) :
             self.que[i] = Square()
-            self.que[i].heapIndex = copy.copy(i)
-            self.que[i].boardIndex = copy.copy(i)
+            self.que[i].heapIndex = i
+            self.que[i].boardIndex = i
 
         for i in range(0, 81) :
             if(i % 9 != 8): self.que[i].right = Backer(self.que[i+1])
@@ -74,12 +74,12 @@ class Heap:
         self.que[index1] = self.que[index2]
         self.que[index2] = square
 
-        dummy = copy.copy(self.que[index1].heapIndex)
-        self.que[index1].heapIndex = copy.copy(self.que[index2].heapIndex)
-        self.que[index2].heapIndex = copy.copy(dummy)
+        dummy = self.que[index1].heapIndex
+        self.que[index1].heapIndex = self.que[index2].heapIndex
+        self.que[index2].heapIndex = dummy
 
     def heapify(self, index):
-        child = copy.copy(index)*2
+        child = index*2
         if(child < self.size):
             if(child+1 < self.size):
                 if(self.que[child].free <= self.que[child+1].free):
@@ -92,7 +92,7 @@ class Heap:
 
     # Assumes 'value' is legal and square is currently set to 0
     def assign(self, index, value):
-        self.que[index].value = copy.copy(value)
+        self.que[index].value = value
         self.moves += 1
         self.size -= 1
 
@@ -103,19 +103,19 @@ class Heap:
         self.heapify(0)
         for i in range(0, 9):
             right.off(value)
-            j = copy.copy(right.heapIndex)
+            j = right.heapIndex
             if(j < self.size):
                 while( self.que[j].free < self.que[int(j/2)].free ):
                     self.swap(right.heapIndex, int(right.heapIndex/2))
                     j = int(j/2)
             down.off(value)
-            j = copy.copy(down.heapIndex)
+            j = down.heapIndex
             if(j < self.size):
                 while( self.que[j].free < self.que[int(j/2)].free ):
                     self.swap(down.heapIndex, int(down.heapIndex/2))
                     j = int(j/2)
             next.off(value)
-            j = copy.copy(next.heapIndex)
+            j = next.heapIndex
             if(j < self.size):
                 while( self.que[j].free < self.que[int(j/2)].free ):
                     self.swap(next.heapIndex, int(next.heapIndex/2))
@@ -130,11 +130,11 @@ class Heap:
         for i in range(0, 9):
             for j in range(0, 9):
                 k = 9*i+j
-                if(START[k] != 0): self.assign( copy.copy(square.heapIndex) , copy.copy(START[k]) )
+                if(START[k] != 0): self.assign( square.heapIndex , START[k] )
                 square = square.right.square
             square = square.down.square
 
-    def print(self):
+    def display(self):
         string = "\n-------------\n"
         square = self.head
         for i in range(0, 9):
@@ -153,7 +153,7 @@ class Heap:
 
     def solve(self):
         if(self.que[0].value > 0) : 
-            self.print()
+            self.display()
             return True
 
         if(self.que[0].free <= 0) :
@@ -162,21 +162,22 @@ class Heap:
 
         while(self.que[0].minOption < 10) :
             copyHeap = copy.deepcopy(self)
-            copyHeap.assign(0, copy.copy(copyHeap.que[0].minOption))
+            copyHeap.assign(0, copyHeap.que[0].minOption)
             if(copyHeap.solve()) : 
-                self.backtracks = copy.copy(copyHeap.backtracks)
-                self.moves = copy.copy(copyHeap.moves)
+                self.backtracks = copyHeap.backtracks
+                self.moves = copyHeap.moves
                 del copyHeap
                 return True
             else : 
-                self.backtracks = copy.copy(copyHeap.backtracks)
-                self.moves = copy.copy(copyHeap.moves)
+                self.backtracks = copyHeap.backtracks
+                self.moves = copyHeap.moves
                 del copyHeap
-                self.que[0].off(copy.copy(self.que[0].minOption))
+                self.que[0].off(self.que[0].minOption)
+        self.backtracks += 1
         return False
         
 
 puzzle = Heap()
 puzzle.setBoard()
-puzzle.print()
+puzzle.display()
 puzzle.solve()
