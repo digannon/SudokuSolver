@@ -1,3 +1,8 @@
+#Solves and prints the sudoku position in START
+#via depth-first search, fewest-options-first
+#the squares are maintained in a min-heap for fewest
+#number of available options
+
 import cv2
 import math
 import copy
@@ -14,23 +19,23 @@ START = [0, 0, 0, 0, 0, 0, 6, 8, 0,
 
 class Square:
     def __init__(self):
-        self.value = 0
-        self.option = {1: True, 2: True, 3: True, 4: True, 
+        self.value = 0                                                  # value of the square, 0 means empty
+        self.option = {1: True, 2: True, 3: True, 4: True,              
                        5: True, 6: True, 7: True, 8: True, 9: True}
-        self.free = 9
-        self.right = Backer(self)
-        self.down = Backer(self)
-        self.next = Backer(self)
-        self.heapIndex = 0
-        self.boardIndex = 0
-        self.minOption = 1
-    def off(self, value):
+        self.free = 9                                                   # number of available options
+        self.right = Backer(self)                                       # path to next square in row
+        self.down = Backer(self)                                        # path to next square in column
+        self.next = Backer(self)                                        # path to next square in block
+        self.heapIndex = 0                                              # index within the min-heap
+        self.boardIndex = 0                                             # index on the board (not needed for solution)
+        self.minOption = 1                                              # the min i such that self.option[i] == True
+    def off(self, value):                                               # Sets self.option[value] to False
         if(self.option[value]) :
             self.option[value] = False
             self.free -= 1
             while( (self.option.get(self.minOption) == False) & (self.minOption < 10) ) : 
                 self.minOption += 1
-    def on(self, value):
+    def on(self, value):                                                # Sets self.option[value] to True
         if(self.option[value] == False) :
             self.option[value] = True
             self.free += 1
